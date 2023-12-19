@@ -1,11 +1,10 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import config
 
 
 class SparseAutoencoder(nn.Module):
-    def __init__(self, n_features=config.N_FEATURES, n_embed=config.N_EMBED):
+    def __init__(self, n_features, n_embed):
         super().__init__()
         self.encoder = nn.Linear(n_embed * 4, n_features)
         self.decoder = nn.Linear(n_features, n_embed * 4)

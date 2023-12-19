@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import math
-import config
+# import config
 
 
 class MLP(nn.Module):
@@ -83,7 +83,7 @@ class Block(nn.Module):
     
 
 class Transformer(nn.Module):
-    def __init__(self, n_head=config.N_HEAD, n_embed=config.N_EMBED, context_length=config.CONTEXT_LENGTH, vocab_size=config.VOCAB_SIZE):
+    def __init__(self, n_head, n_embed, context_length, vocab_size):
         super().__init__()
         self.context_length = context_length
         self.token_embed = nn.Embedding(vocab_size, n_embed)

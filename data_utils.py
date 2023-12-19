@@ -1,11 +1,9 @@
 import numpy as np
-import config
 import h5py
 import torch
 
-def get_batch_iterator(split, batch_size=config.T_BATCH_SIZE, context_length=config.CONTEXT_LENGTH, train_path=config.TRAIN_PATH, dev_path=config.DEV_PATH, device=config.DEVICE):
-    hdf5_path = train_path if split=='train' else dev_path
-    with h5py.File(hdf5_path, 'r') as hdf5_file:
+def get_batch_iterator(data_path, batch_size, context_length, device="cpu"):
+    with h5py.File(data_path, 'r') as hdf5_file:
         dataset = hdf5_file['tokens']
         dataset_size = dataset.shape[0]
         n_examples = (dataset_size - 1) // context_length  # subtract 1 for y
