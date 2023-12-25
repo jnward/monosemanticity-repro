@@ -14,13 +14,13 @@ TRAIN_PATH = "data/med_pile_train.h5"
 DEV_PATH = "data/pile_val.h5"
 T_BATCH_SIZE = 32
 T_CONTEXT_LENGTH = 128
-T_TRAIN_STEPS = 100
-T_EVAL_STEPS = 40
-T_EVAL_ITERS = 10
-T_LR_DECAY_STEP = 60
-T_LR = 1e-3
+T_TRAIN_STEPS = 200000
+T_EVAL_STEPS = 1000
+T_EVAL_ITERS = 250
+T_LR_DECAY_STEP = 50000
+T_LR = 5e-4
 T_LR_DECAYED = 5e-5
-T_OUT_PATH = "models/transformer.pt"
+T_OUT_PATH = "models/transformer_full.pt"
 
 # Autoencoder training params
 A_BATCH_SIZE = 512

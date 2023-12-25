@@ -2,7 +2,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import math
-# import config
 
 
 class MLP(nn.Module):
@@ -91,13 +90,13 @@ class Transformer(nn.Module):
         self.attn_block = Block(n_head, n_embed, context_length)
         self.layer_norm = nn.LayerNorm(n_embed)
         self.lm_head = nn.Linear(n_embed, vocab_size)
-        # self.register_buffer('pos_idxs', torch.arange(context_length))  # TODO: this is probably better when training a new model
+        self.register_buffer('pos_idxs', torch.arange(context_length))  # TODO: this is probably better when training a new model
 
     def _pre_attn_pass(self, idx):
         B, T = idx.shape
         tok_embedding = self.token_embed(idx)
-        # pos_embedding = self.position_embed(self.pos_idxs[:T])
-        pos_embedding = self.position_embed(torch.arange(T, device=self.position_embed.weight.device))
+        pos_embedding = self.position_embed(self.pos_idxs[:T])
+        # pos_embedding = self.position_embed(torch.arange(T, device=self.position_embed.weight.device))
         return tok_embedding + pos_embedding
 
     def forward(self, idx, targets=None):
