@@ -88,7 +88,6 @@ class Transformer(nn.Module):
         self.token_embed = nn.Embedding(vocab_size, n_embed)
         self.position_embed = nn.Embedding(context_length, n_embed)
         self.h = nn.ModuleList([Block(n_head, n_embed, context_length) for _ in range(n_layer)])
-        self.attn_block = Block(n_head, n_embed, context_length)
         self.layer_norm = nn.LayerNorm(n_embed)
         self.lm_head = nn.Linear(n_embed, vocab_size)
         self.register_buffer('pos_idxs', torch.arange(context_length))  # TODO: this is probably better when training a new model
