@@ -82,11 +82,12 @@ class Block(nn.Module):
     
 
 class Transformer(nn.Module):
-    def __init__(self, n_head, n_embed, context_length, vocab_size):
+    def __init__(self, n_head, n_embed, n_layer, context_length, vocab_size):
         super().__init__()
         self.context_length = context_length
         self.token_embed = nn.Embedding(vocab_size, n_embed)
         self.position_embed = nn.Embedding(context_length, n_embed)
+        self.h = nn.ModuleList([Block(n_head, n_embed, context_length) for _ in range(n_layer)])
         self.attn_block = Block(n_head, n_embed, context_length)
         self.layer_norm = nn.LayerNorm(n_embed)
         self.lm_head = nn.Linear(n_embed, vocab_size)
@@ -101,7 +102,8 @@ class Transformer(nn.Module):
 
     def forward(self, idx, targets=None):
         x = self._pre_attn_pass(idx)
-        x = self.attn_block(x)
+        for block in self.h:
+            x = block(x)
         x = self.layer_norm(x)
         logits = self.lm_head(x)
         loss = None
@@ -112,14 +114,26 @@ class Transformer(nn.Module):
             loss = F.cross_entropy(flat_logits, targets)
         return logits, loss
 
-    def forward_embedding(self, idx):
+    def forward_embedding(self, idx, layer=-1):
+        if layer == -1:
+            layer = len(self.h) - 1
         x = self._pre_attn_pass(idx)
-        x, residual = self.attn_block.forward_embedding(x)
+        for i, block in enumerate(self.h):
+            if layer == i:
+                x, residual = block.forward_embedding(x)
+                break
+            x = block(x)
         return x, residual
 
-    def forward_ablated(self, idx, autoencoder, targets=None):
+    def forward_ablated(self, idx, autoencoder, layer=-1, targets=None):
+        if layer == -1:
+            layer = len(self.h) - 1
         x = self._pre_attn_pass(idx)
-        x = self.attn_block.forward_ablated(x, autoencoder)
+        for i, block in enumerate(self.h):
+            if layer == i:
+                x = block.forward_ablated(x, autoencoder)
+            else:
+                x = block(x)
         x = self.layer_norm(x)
         logits = self.lm_head(x)
         loss = None
@@ -140,10 +154,10 @@ class Transformer(nn.Module):
             idx = torch.cat((idx, idx_next), dim=1)
         return idx
 
-    def generate_ablated(self, idx, max_new_tokens, autoencoder):
+    def generate_ablated(self, idx, max_new_tokens, autoencoder, layer=-1):
         for _ in range(max_new_tokens):
             idx_cond = idx[:, -self.context_length:]
-            logits, _ = self.forward_ablated(idx_cond, autoencoder)
+            logits, _ = self.forward_ablated(idx_cond, autoencoder, layer)
             logits = logits[:, -1, :]
             probs = F.softmax(logits, dim=-1)
             idx_next = torch.multinomial(probs, num_samples=1)
