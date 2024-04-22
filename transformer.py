@@ -114,8 +114,9 @@ class Transformer(nn.Module):
         return logits, loss
 
     def forward_embedding(self, idx, layer=-1):
-        if layer == -1:
-            layer = len(self.h) - 1
+        if layer < 0:
+            layer = len(self.h) + layer
+        assert layer < len(self.h)
         x = self._pre_attn_pass(idx)
         for i, block in enumerate(self.h):
             if layer == i:
@@ -125,8 +126,9 @@ class Transformer(nn.Module):
         return x, residual
 
     def forward_ablated(self, idx, autoencoder, layer=-1, targets=None):
-        if layer == -1:
-            layer = len(self.h) - 1
+        if layer < 0:
+            layer = len(self.h) + layer
+        assert layer < len(self.h)
         x = self._pre_attn_pass(idx)
         for i, block in enumerate(self.h):
             if layer == i:
