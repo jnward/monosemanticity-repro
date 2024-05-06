@@ -15,7 +15,6 @@ def get_batch_iterator(data_path, batch_size, context_length, device="cpu"):
             if counter + batch_size > n_examples:
                 np.random.shuffle(example_idxs)
                 counter = 0
-                print(f"Finished epoch {epochs}")
                 epochs += 1
             random_indices = example_idxs[counter:counter+batch_size] * context_length
             random_samples = torch.tensor(np.array([dataset[idx:idx+context_length+1] for idx in random_indices]))
